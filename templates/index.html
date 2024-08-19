@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PersonaAI - Analyze Facebook ID</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+        }
+        .card {
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .header a img {
+            height: 50px;
+            width: 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            margin-right: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #007bff;
+            font-weight: bold;
+            padding-left: 70px;
+        }
+        .header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .slogan {
+            font-size: 20px;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #loadingSpinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            margin-bottom: 10px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        #loadingMessage {
+            animation: blink 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="https://espysys.com/" target="_blank">
+                <img src="static/icon.png" alt="Logo">
+            </a>
+            <h1>🔍 Unlock Your Mind: AI-Powered Psychological Portraits from Facebook ID! 🧠✨</h1>
+        </div>
+        <div class="card">
+            <h2 class="text-center">Welcome to <span style="color: #007bff;">PersonaAI</span></h2>
+            <form id="analyzeForm">
+                <div class="form-group">
+                    <label for="facebook_id">Enter Facebook ID:</label>
+                    <input type="text" name="facebook_id" id="facebook_id" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="analyzeButton">Analyze</button>
+            </form>
+            <a href="/settings" class="btn btn-link btn-block mt-3">User Settings</a>
+        </div>
+        <div id="loadingSpinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p id="loadingMessage">Processing your request, please wait...</p>
+        </div>
+        <div id="resultContainer" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('analyzeForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            const facebookId = document.getElementById('facebook_id').value;
+            const spinner = document.getElementById('loadingSpinner');
+            const resultContainer = document.getElementById('resultContainer');
+
+            spinner.style.display = 'block';
+            resultContainer.style.display = 'none';
+
+            fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `facebook_id=${encodeURIComponent(facebookId)}`,
+            })
+            .then(response => response.text())
+            .then(data => {
+                spinner.style.display = 'none';
+                resultContainer.style.display = 'block';
+                resultContainer.innerHTML = `${data}`;
+            })
+            .catch(error => {
+                spinner.style.display = 'none';
+                resultContainer.style.display = 'block';
+                resultContainer.innerHTML = `<pre>Error: ${error.message}</pre>`;
+            });
+        });
+    </script>
+</body>
+</html>

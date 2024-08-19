@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PersonaAI Report</title>
+    <style>
+        .spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="spinner" class="spinner"></div>
+
+    <script>
+        document.getElementById('spinner').style.display = 'block';
+    </script>
+
+    <h2>Processing your request, please wait...</h2>
+
+    <!-- The report data will be filled here after processing -->
+
+    <script>
+        window.onload = function() {
+            // After the page has fully loaded, hide the spinner and show the report.
+            document.getElementById('spinner').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

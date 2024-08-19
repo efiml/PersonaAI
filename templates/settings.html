@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Settings - PersonaAI</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-top: 50px;
+        }
+        .container {
+            max-width: 500px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #5cb85c;
+            border-color: #5cb85c;
+        }
+        .btn-primary:hover {
+            background-color: #4cae4c;
+            border-color: #4cae4c;
+        }
+        .instructions {
+            margin-top: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instructions a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .instructions a:hover {
+            text-decoration: underline;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title text-center">User Settings</h3>
+                
+                <!-- Display any messages -->
+                {% if message %}
+                    <div class="alert {{ message_type }}">
+                        {{ message }}
+                    </div>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('settings') }}">
+                    <div class="form-group">
+                        <label for="api_key">API Key:</label>
+                        <input type="text" name="apikey" id="api_key" value="{{ api_key }}" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Save</button>
+                </form>
+                
+                <div class="instructions">
+                    <h5>How to Get Your API Key</h5>
+                    <ol>
+                        <li>Register to IRBIS:
+                            <ul>
+                                <li>Visit the <a href="https://irbis.espysys.com/auth/register" target="_blank">IRBIS Registration Page</a> and create an account.</li>
+                            </ul>
+                        </li>
+                        <li>Choose a Subscription Package:
+                            <ul>
+                                <li>Select the subscription package that best fits your needs.</li>
+                            </ul>
+                        </li>
+                        <li>Navigate to the Developer Page:
+                            <ul>
+                                <li>After logging in, go to the <a href="https://irbis.espysys.com/developer" target="_blank">Developer page</a>.</li>
+                            </ul>
+                        </li>
+                        <li>Generate and Copy the API Key:
+                            <ul>
+                                <li>Generate your API key and copy the value shown. Store it in a safe place.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                
+                <a href="{{ url_for('home') }}" class="btn btn-link btn-block mt-3">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
