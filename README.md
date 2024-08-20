@@ -6,15 +6,16 @@ PersonaAI is a command-line and web-based tool designed to perform psychological
 
 ## Features
 
-- Generate AI-based psychological profiles from Facebook IDs.
-- Available in CLI and UI versions.
-- Integrates with IRBIS API for data retrieval and analysis.
-- Display information in various formats based on user preference.
+- **Psychological Profiling:** Generate AI-based psychological profiles from Facebook IDs.
+- **Export to PDF:** Export detailed profiles to PDF for easy sharing and archiving.
+- **CLI and UI Versions:** Available as a command-line tool and a web-based application.
+- **IRBIS API Integration:** Utilizes IRBIS API services for data retrieval and analysis.
 
 ## Prerequisites
 
 - Python 3.6 or higher
-- Git
+- Git (for version control)
+- Access to IRBIS API with a valid API key
 
 ## Installation
 
@@ -150,6 +151,12 @@ PersonaAI is a command-line and web-based tool designed to perform psychological
 
 2. **Open the Application in Your Browser:**
     Navigate to [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your browser.
+
+## Screenshots
+
+![Screenshot 1](assets/screenshot1.png)
+![Screenshot 2](assets/screenshot2.png)
+![Screenshot 3](assets/screenshot3.png)
 
 ## Notes
 

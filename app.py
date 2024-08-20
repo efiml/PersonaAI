@@ -11,6 +11,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RLImage, Table, TableStyle
+import re  # Import re module for regular expressions
 
 app = Flask(__name__)
 
@@ -65,6 +66,18 @@ def validate_api_key(api_key):
     )
     return response.status_code == 200
 
+# Function to validate Facebook ID
+def validate_facebook_id(facebook_id):
+    # Pattern for numeric ID (e.g., "100077649716158")
+    numeric_pattern = re.compile(r'^\d+$')
+    # Pattern for alphanumeric username with periods (e.g., "itaybar1", "eloy.simoesjr", "gwry.pwmrny.n.l.ymwz.whhzrh")
+    username_pattern = re.compile(r'^[a-zA-Z0-9._-]+$')
+
+    if numeric_pattern.match(facebook_id) or username_pattern.match(facebook_id):
+        return True
+    else:
+        return False
+
 # Trigger the psycho profile lookup
 def trigger_psycho_profile(api_key, facebook_id):
     payload = {
@@ -99,8 +112,8 @@ def poll_for_results(api_key, lookup_id):
                     if 'data' in final_data and len(final_data['data']) > 0:
                         print("Final data retrieved.")
                         return final_data['data'][0]['psychAnalyst']['profiles'][0], final_data['data'][0]['psychAnalyst'].get('image', '')
-        print(f"Current status: {status}. Polling again in 10 seconds...")
-        time.sleep(10)  # Poll every 10 seconds
+        print(f"Current status: {status}. Polling again in 5 seconds...")
+        time.sleep(5)  # Poll every 5 seconds
     return None, None
 
 @app.route('/')
@@ -124,6 +137,10 @@ def analyze():
             return f"Error loading test JSON: {str(e)}", 500
     else:
         facebook_id = request.form['facebook_id']
+        if not validate_facebook_id(facebook_id):
+            print(f"Invalid Facebook ID: {facebook_id}")
+            return "Invalid Facebook ID format. Please enter a valid ID.", 400
+
         print(f"Received Facebook ID: {facebook_id}")
         api_key = get_stored_api_key()
         if not api_key:
