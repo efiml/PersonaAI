@@ -44,7 +44,7 @@ PersonaAI is a command-line and web-based tool designed to perform psychological
     - Download the pre-built `reportlab` wheel file from the repository or a provided link.
     - Install the `reportlab` package using the downloaded wheel:
       ```powershell
-      pip install .\reportlab-4.2.2-py3-none-any.whl
+      pip install .\windows_dependencies\reportlab-4.2.2-py3-none-any.whl
       ```
 
 5. **Install Remaining Dependencies:**
