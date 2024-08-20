@@ -1,3 +1,4 @@
+![Screenshot 4](assets/screenshot4.png)
 # PersonaAI  
 
 ## Description
@@ -119,6 +120,13 @@ PersonaAI is a command-line and web-based tool designed to perform psychological
 4. **Generate and Copy the API Key**:
     - Generate your API key and copy the value shown. Store it securely.
 
+## Video Tutorial
+
+For a step-by-step guide on how to install and use PersonaAI, watch the video tutorial below:
+
+[![PersonaAI Video Tutorial](https://img.youtube.com/vi/n_nUhYlrww4/hqdefault.jpg)](https://www.youtube.com/watch?v=n_nUhYlrww4)
+
+Click the image above to watch the tutorial on YouTube.
 ## Usage
 
 ### Command Line Interface (CLI)
