@@ -94,14 +94,21 @@ def trigger_psycho_profile(api_key, facebook_id):
 # Poll for results until analysis is complete
 def poll_for_results(api_key, lookup_id):
     url = RESULTS_URL_TEMPLATE.format(lookup_id, api_key)
-    status = "progress"
-    
-    while status != "FINISHED":
+    finished_status_count = 0
+
+    while finished_status_count < 3:
         response = requests.get(url, headers={"Content-Type": "application/json"})
         if response.status_code == 200:
             data = response.json()
             print(f"API response received: {json.dumps(data, indent=2)}")  # Debug message for the full API response
-            if 'data' in data and len(data['data']) > 0:
+
+            if 'data' in data and len(data['data']) == 0:  # Empty data list
+                status = data.get('status')
+                if status == "finished":
+                    finished_status_count += 1
+                    if finished_status_count >= 3:
+                        return "Facebook profile is empty or does not exist", None
+            elif 'data' in data and len(data['data']) > 0:
                 status = data['data'][0]['status']
                 if status == "FINISHED":
                     print("Profile analysis completed. Retrieving final data...")
@@ -112,9 +119,14 @@ def poll_for_results(api_key, lookup_id):
                     if 'data' in final_data and len(final_data['data']) > 0:
                         print("Final data retrieved.")
                         return final_data['data'][0]['psychAnalyst']['profiles'][0], final_data['data'][0]['psychAnalyst'].get('image', '')
-        print(f"Current status: {status}. Polling again in 5 seconds...")
-        time.sleep(5)  # Poll every 5 seconds
-    return None, None
+            else:
+                print(f"Current status: {status}. Polling again in 5 seconds...")
+                time.sleep(5)  # Poll every 5 seconds
+        else:
+            print(f"Error retrieving status: {response.status_code}")
+            break
+    
+    return "Profile analysis failed. Please try again later.", None
 
 @app.route('/')
 def home():
@@ -123,47 +135,26 @@ def home():
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    test_mode = False
-    if test_mode:
-        try:
-            print("Test mode: Loading test JSON.")
-            with open('test_response.json', 'r') as f:
-                response_data = json.load(f)
-                profile_result = response_data['data'][0]['psychAnalyst']['profiles'][0]
-                image_url = response_data['data'][0]['psychAnalyst'].get('image', '')
-                print(f"Test mode image URL: {image_url}")  # Debug for test mode
-        except Exception as e:
-            print(f"Error loading test JSON: {str(e)}")
-            return f"Error loading test JSON: {str(e)}", 500
-    else:
-        facebook_id = request.form['facebook_id']
-        if not validate_facebook_id(facebook_id):
-            print(f"Invalid Facebook ID: {facebook_id}")
-            return "Invalid Facebook ID format. Please enter a valid ID.", 400
+    facebook_id = request.form['facebook_id']
+    if not validate_facebook_id(facebook_id):
+        return "Invalid Facebook ID format. Please enter a valid ID.", 400
 
-        print(f"Received Facebook ID: {facebook_id}")
-        api_key = get_stored_api_key()
-        if not api_key:
-            print("API key not found.")
-            return "API key not found. Please set your API key in the settings.", 400
+    api_key = get_stored_api_key()
+    if not api_key:
+        return "API key not found. Please set your API key in the settings.", 400
 
-        print("Triggering psycho profile lookup...")
-        lookup_id = trigger_psycho_profile(api_key, facebook_id)
-        if not lookup_id:
-            print("Failed to initiate profile lookup.")
-            return "Failed to initiate profile lookup. Please try again.", 500
+    lookup_id = trigger_psycho_profile(api_key, facebook_id)
+    if not lookup_id:
+        return "Failed to initiate profile lookup. Please try again.", 500
 
-        print(f"Profile lookup initiated. Lookup ID: {lookup_id}")
-        profile_result, image_url = poll_for_results(api_key, lookup_id)
-        if not profile_result:
-            print("Profile analysis failed.")
-            return "Profile analysis failed. Please try again later.", 500
-        
-        print(f"Image URL retrieved: {image_url}")
+    profile_result, image_url = poll_for_results(api_key, lookup_id)
+    if profile_result is None:
+        return "Profile analysis failed. Please try again later.", 500
+    elif isinstance(profile_result, str):  # This will catch our custom message
+        return f"<div class='alert alert-danger'>{profile_result}</div>"
 
     # Prepare result with emojis, colored danger level, and profile picture
     name = profile_result.get('personName', 'Name not available')
-    print(f"Person name: {name}")
     psycho_portrait = profile_result.get('psychologicalPortrait', 'No data available')
     danger_level = profile_result.get('levelOfDanger', 'No data available')
     characteristics = profile_result.get('predictedCharacteristics', [])
@@ -313,11 +304,16 @@ def settings():
             message = "API key is required."
             message_type = "alert-danger"
 
-        return render_template('settings.html', api_key=api_key, message=message, message_type=message_type)
+        return render_template('settings.html', api_key=sanitize_api_key(api_key), message=message, message_type=message_type)
 
     # GET request or no API key submitted
     api_key = get_stored_api_key() or ""
-    return render_template('settings.html', api_key=api_key)
+    return render_template('settings.html', api_key=sanitize_api_key(api_key))
+
+def sanitize_api_key(api_key):
+    if api_key:
+        return f"${'*' * (len(api_key) - 5)}{api_key[-5:]}"
+    return ""
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -144,7 +144,7 @@
             .catch(error => {
                 spinner.style.display = 'none';
                 resultContainer.style.display = 'block';
-                resultContainer.innerHTML = `<pre>Error: ${error.message}</pre>`;
+                resultContainer.innerHTML = `<div class='alert alert-danger'>Error: ${error.message}</div>`;
             });
         });
     </script>

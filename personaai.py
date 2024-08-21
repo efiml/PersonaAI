@@ -159,13 +159,13 @@ import sys
 
 def poll_for_results(api_key, lookup_id, debug_mode=False):
     url = RESULTS_URL_TEMPLATE.format(lookup_id, api_key)
-    status = "progress"
     attempt_number = 1
+    finished_status_count = 0
 
-    while status != "FINISHED":
+    while True:
         # Display attempt number before the progress bar
         print(f"Attempt {attempt_number} to recheck status:")
-        
+
         for _ in tqdm(range(10), desc="", unit="s", leave=False):
             time.sleep(1)
 
@@ -176,7 +176,20 @@ def poll_for_results(api_key, lookup_id, debug_mode=False):
 
         if response.status_code == 200:
             data = response.json()
-            if 'data' in data and len(data['data']) > 0:
+            if 'data' in data and len(data['data']) == 0:  # Checking if the data list is empty
+                status = data.get('status')
+                if status == "finished":
+                    finished_status_count += 1
+                    if finished_status_count >= 3:
+                        print("""
+    ***********************************************
+    *                                             *
+    * Facebook profile is empty or does not exist *
+    *                                             *
+    ***********************************************
+    """)
+                        break
+            elif 'data' in data and len(data['data']) > 0:
                 status = data['data'][0]['status']
                 if status == "FINISHED":
                     print("\nProfile analysis complete!")
@@ -184,11 +197,11 @@ def poll_for_results(api_key, lookup_id, debug_mode=False):
                     # Wait an additional 20 seconds before retrieving the final data
                     for _ in tqdm(range(20), desc="Finalizing", unit="s"):
                         time.sleep(1)
-                    
+
                     # Retrieve the final data after the timeout
                     final_response = requests.get(url, headers={"Content-Type": "application/json"})
                     final_data = final_response.json()
-                    
+
                     if 'data' in final_data and len(final_data['data']) > 0:
                         profile = final_data['data'][0]['psychAnalyst']['profiles'][0]
                         danger_level = profile['levelOfDanger'].split(",", 1)
@@ -207,9 +220,10 @@ Predicted Characteristics: {', '.join(profile['predictedCharacteristics'])}.
 ##########################################################
 """
                         print(formatted_output)
+                        break
                     else:
                         print("Error: No data available in final retrieval. Please try again later.")
-                    break
+                        break
                 else:
                     if debug_mode:
                         print("Profile analysis is still in progress...")
